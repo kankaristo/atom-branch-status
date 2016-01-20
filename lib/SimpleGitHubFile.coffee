@@ -10,7 +10,7 @@ class SimpleGitHubFile
 
   # Internal
   constructor: (@filePath) ->
-    @repo = atom.project.getRepositories()?[0]
+    #@repo = atom.project.getRepositories()?[0]
 
   # Public
   open: ->
@@ -86,14 +86,17 @@ class SimpleGitHubFile
   historyUrl: ->
     "#{@githubRepoUrl()}/commits/#{@branch()}/#{@repoRelativePath()}"
 
+  getRepo: ->
+    atom.project.getRepositories()?[0]
+
   # Internal
   gitUrl: ->
     remoteOrBestGuess = @remoteName() ? 'origin'
-    @repo.getConfigValue("remote.#{remoteOrBestGuess}.url")
+    @getRepo()?.getConfigValue("remote.#{remoteOrBestGuess}.url")
 
   # Internal
   githubRepoUrl: ->
-    url = @gitUrl()
+    return unless url = @gitUrl()
     if url.match /https:\/\/[^\/]+\// # e.g., https://github.com/foo/bar.git
       url.replace(/\.git$/, '')
     else if url.match /git@[^:]+:/    # e.g., git@github.com:foo/bar.git
@@ -104,14 +107,16 @@ class SimpleGitHubFile
 
   # Internal
   repoRelativePath: ->
-    @repo.relativize(@filePath)
+    @getRepo()?.relativize(@filePath)
 
   # Internal
   remoteName: ->
-    refName = @repo.getUpstreamBranch() # e.g., "refs/remotes/origin/master"
+    # e.g., "refs/remotes/origin/master"
+    refName = @getRepo()?.getUpstreamBranch()
     refName?.match(/^refs\/remotes\/(.+)\/.*$/)?[1] ? null
 
   # Internal
   branch: ->
-    refName = @repo.getUpstreamBranch() # e.g., "refs/remotes/origin/master"
+    # e.g., "refs/remotes/origin/master"
+    refName = @getRepo()?.getUpstreamBranch()
     refName?.match(/^refs\/remotes\/.*\/(.+)$/)?[1] ? @repo.getShortHead()
