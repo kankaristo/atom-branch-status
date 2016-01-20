@@ -29,7 +29,7 @@ getRef = ->
 
 findPR = ->
   # New poll in 5 seconds (TODO: Better way of doing this?)
-  setTimeout findPR, 5000
+  setTimeout findPR, atom.config.get("branch-status.updateInterval") * 1000
 
   return unless prRef = getRef()
   return unless editor = atom.workspace.getActiveTextEditor()
@@ -70,7 +70,7 @@ findPR = ->
 
 pollStatus = ->
   # New poll in 5 seconds (TODO: Better way of doing this?)
-  setTimeout pollStatus, 5000
+  setTimeout pollStatus, atom.config.get("branch-status.updateInterval") * 1000
 
   # Store ref from last poll
   oldRef = ref
@@ -173,6 +173,12 @@ module.exports =
       type: "string"
       description: "Your personal GitHub access token"
       default: ""
+    updateInterval:
+      description: "Update interval in seconds (minimum 1 second)"
+      type: 'integer'
+      default: 5
+      minimum: 1
+      maximum: 60
 
   activate: (state) ->
     console.log state
